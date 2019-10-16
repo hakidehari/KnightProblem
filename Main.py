@@ -1,14 +1,19 @@
 from Graph import Graph
 
-def print_pi(dest, pi, src):
-    S = []
-    u = dest
-    if pi[u] is not None:
-        while u is not None:
-            S.append(u)
-            u = pi[u]
-    print(S)
-
+def shortest_path(knight_graph, paths):
+    #knight_graph.assign_random_weight()
+    min_cost = 9999999
+    total = 0
+    lowest = ""
+    for path in paths:
+        for i in range(0, len(path)-1):
+            total += knight_graph.weight[str(path[i])+","+str(path[i+1])]
+        if total < min_cost:
+            min_cost = total
+            print(min_cost)
+            lowest = path
+        total = 0
+    return lowest
 
 
 #add all the vertices to the graph
@@ -72,8 +77,25 @@ def BFS(knight_graph, src, dest, count=0):
                 queue.append(i) 
                 visited[i] = True
 
-def BFS_modified():
-    pass
+
+def BFS_modified(knight_graph, src, dest):
+    queue = [(src, [src])]
+    while queue:
+        (vertex, path) = queue.pop(0)
+        for u in set(knight_graph.getDict()[vertex]) - set(path):
+            if u == dest:
+                yield path + [u]
+            else:
+                queue.append((u, path + [u]))
+
+
+def DFS_modified(knight_graph, src, dest, path=None):
+    if path is None:
+        path = [src]
+    if src == dest:
+        yield path
+    for u in set(knight_graph.getDict()[src]) - set(path):
+        yield from DFS_modified(knight_graph, u, src, path + [src])
 
 
 def DFSUtil(src, dest, visited, knight_graph, count=0): 
@@ -132,9 +154,6 @@ def dijsktra(knight_graph, src, dest):
 
 
 
-        
-
-
 
 #generate the graph
 def generate_knight_graph(board):
@@ -143,18 +162,33 @@ def generate_knight_graph(board):
     cols = len(board[0])
     knight_graph = add_vertices_to_graph(knight_graph, rows, cols)
     knight_graph = add_edges_to_graph(knight_graph, rows, cols)
+    knight_graph.assign_default_weight()
+    print("DONE GENRATING GRAPH")
     return knight_graph
 
 
 def findGold(n, knightrow, knightcol, goldrow, goldcol):
     #generates chess boaerd based on n
     board = [[0 for i in range(n)] for j in range(n)]
-    graph = generate_knight_graph(board)
-    print(BFS(graph, (knightrow,knightcol), (goldrow,goldcol)))
-    print(DFS((2,2), (2,3), graph))
-    print(dijsktra(graph, (2,2), (2,3)))
+    knight_graph = generate_knight_graph(board)
+    #print(BFS(graph, (knightrow,knightcol), (goldrow,goldcol)))
+    #print(DFS((2,2), (2,3), graph))
+    #print(dijsktra(graph, (2,2), (2,3)))
 
-findGold(5, 3, 3, 3, 4)
+    BFS_paths = list(BFS_modified(knight_graph, (knightrow, knightcol), (goldrow, goldcol)))
+    print("done generating BFS paths")
+    BFS_shortest_path = shortest_path(knight_graph, BFS_paths)
+    print("BFS shortest path is: "+str(BFS_shortest_path))
+
+    DFS_paths = list(DFS_modified(knight_graph, (knightrow, knightcol), (goldrow, goldcol)))
+    print("done generating DFS paths")
+    DFS_shortest_path = shortest_path(knight_graph, DFS_paths)
+    print(DFS_paths)
+    print("DFS shortest path is: "+ str(DFS_shortest_path))
+
+
+if __name__ == '__main__':
+    findGold(5, 2, 2, 3, 2)
 
 
 

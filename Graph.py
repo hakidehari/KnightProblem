@@ -17,11 +17,34 @@ class Graph(object):
         return self.__graph_dict
 
     def assign_random_weight(self):
+        """Assigns random weights to all edges"""
         assigned = {}
+        for key in self.__graph_dict:
+            for value in self.__graph_dict[key]:
+                assigned[(key,value)] = False
+
         for key in self.__graph_dict:
             for value in self.__graph_dict[key]:
                 if not assigned[(key, value)] and not assigned[(value, key)]:
                     weight = random.randint(1, 50)
+                    self.weight[str(key)+","+str(value)] = weight
+                    self.weight[str(value)+","+str(key)] = weight
+                    assigned[(key, value)] = True
+                    assigned[(value, key)] = True
+
+
+    def assign_default_weight(self):
+        """Assigns weight 1 to each edge"""
+        #initialize assigned dict
+        assigned = {}
+        for key in self.__graph_dict:
+            for value in self.__graph_dict[key]:
+                assigned[(key,value)] = False
+
+        for key in self.__graph_dict:
+            for value in self.__graph_dict[key]:
+                if not assigned[(key, value)] and not assigned[(value, key)]:
+                    weight = 1
                     self.weight[str(key)+","+str(value)] = weight
                     self.weight[str(value)+","+str(key)] = weight
                     assigned[(key, value)] = True
