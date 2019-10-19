@@ -94,8 +94,9 @@ def DFS_modified(knight_graph, src, dest, path=None):
         path = [src]
     if src == dest:
         yield path
+        print(path)
     for u in set(knight_graph.getDict()[src]) - set(path):
-        yield from DFS_modified(knight_graph, u, src, path + [src])
+        yield from DFS_modified(knight_graph, u, dest, path + [u])
 
 
 def DFSUtil(src, dest, visited, knight_graph, count=0): 
