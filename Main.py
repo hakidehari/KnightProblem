@@ -1,7 +1,9 @@
+import sys
 from Graph import Graph
+sys.setrecursionlimit(100000000)
 
 def shortest_path(knight_graph, paths):
-    #knight_graph.assign_random_weight()
+    knight_graph.assign_random_weight()
     min_cost = 9999999
     total = 0
     lowest = ""
@@ -79,24 +81,31 @@ def BFS(knight_graph, src, dest, count=0):
 
 
 def BFS_modified(knight_graph, src, dest):
+    visited = {}
+    visited[src] = True
     queue = [(src, [src])]
     while queue:
         (vertex, path) = queue.pop(0)
-        for u in set(knight_graph.getDict()[vertex]) - set(path):
-            if u == dest:
-                yield path + [u]
-            else:
-                queue.append((u, path + [u]))
+        for u in knight_graph.getDict()[vertex]:
+            if u not in visited:
+                visited[u] = True
+                if u == dest:
+                    yield path + [u]
+                else:
+                    queue.append((u, path + [u]))
 
 
-def DFS_modified(knight_graph, src, dest, path=None):
+def DFS_modified(knight_graph, src, dest, path=None, visited={}):
     if path is None:
         path = [src]
+        visited[src] = True
     if src == dest:
         yield path
         print(path)
-    for u in set(knight_graph.getDict()[src]) - set(path):
-        yield from DFS_modified(knight_graph, u, dest, path + [u])
+    for u in knight_graph.getDict()[src]:
+        if u not in visited:
+            visited[u] = True
+            yield from DFS_modified(knight_graph, u, dest, path + [u], visited)
 
 
 def DFSUtil(src, dest, visited, knight_graph, count=0): 
@@ -154,8 +163,6 @@ def dijsktra(knight_graph, src, dest):
     return S
 
 
-
-
 #generate the graph
 def generate_knight_graph(board):
     knight_graph = Graph()
@@ -164,7 +171,7 @@ def generate_knight_graph(board):
     knight_graph = add_vertices_to_graph(knight_graph, rows, cols)
     knight_graph = add_edges_to_graph(knight_graph, rows, cols)
     knight_graph.assign_default_weight()
-    print("DONE GENRATING GRAPH")
+    print("DONE GENERATING GRAPH")
     return knight_graph
 
 
@@ -179,17 +186,23 @@ def findGold(n, knightrow, knightcol, goldrow, goldcol):
     BFS_paths = list(BFS_modified(knight_graph, (knightrow, knightcol), (goldrow, goldcol)))
     print("done generating BFS paths")
     BFS_shortest_path = shortest_path(knight_graph, BFS_paths)
-    print("BFS shortest path is: "+str(BFS_shortest_path))
-
+    print("BFS shortest path is: "+str(BFS_paths))
+    print("DOING DFS")
     DFS_paths = list(DFS_modified(knight_graph, (knightrow, knightcol), (goldrow, goldcol)))
     print("done generating DFS paths")
     DFS_shortest_path = shortest_path(knight_graph, DFS_paths)
     print(DFS_paths)
-    print("DFS shortest path is: "+ str(DFS_shortest_path))
+    print("DFS shortest path is: "+ str(DFS_paths))
 
 
 if __name__ == '__main__':
-    findGold(5, 2, 2, 3, 2)
+    #n = input("Enter value for n:  ")
+    #knightrow = input("Enter value for knight row:  ")
+    #knightcol = input("Enter value for knight column:  ")
+    #goldrow = input("Enter value for gold row")
+    #goldcol = input("Enter value for gold col")
+    #findGold(n, knightrow, knightcol, goldrow, goldcol)
+    findGold(200, 0, 0, 199, 199)
 
 
 
